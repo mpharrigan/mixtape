@@ -1,7 +1,7 @@
 .. _persistence:
 
-Datasets and Persistence
-========================
+Datasets
+========
 
 MSMBuilder has utility functions for persisting data (loading and saving).
 The two types of objects to be persisted on disk are datasets and models. 

@@ -1,7 +1,7 @@
 .. _faq:
 
-Frequently Asked Questions
-==========================
+FAQs
+====
 
 
 How should I get started?

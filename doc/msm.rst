@@ -1,8 +1,8 @@
 .. _msm:
 .. currentmodule:: msmbuilder.msm
 
-Markov state models (MSMs)
-==========================
+MSMs
+====
 
 Markov state models (MSMs) are a class of models for modeling the
 long-timescale dynamics of molecular systems. They model the dynamics of a

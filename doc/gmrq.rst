@@ -1,7 +1,7 @@
 .. _gmrq:
 
-Model Selection (GMRQ)
-======================
+Model Selection
+===============
 
 GMRQ uses a variational principle to help you select model parameters.
 

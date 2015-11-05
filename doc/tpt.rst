@@ -1,8 +1,8 @@
 .. _tpt:
 .. currentmodule:: msmbuilder.tpt
 
-Transition Path Theory
-======================
+TPT
+===
 
 
 Transition path theory (TPT) is a way to extract the highest-flux pathways

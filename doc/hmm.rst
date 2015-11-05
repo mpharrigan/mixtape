@@ -1,8 +1,8 @@
 .. _hmm:
 .. currentmodule:: msmbuilder.hmm
 
-Hidden Markov models (HMMs)
-===========================
+HMMs
+====
 
 .. figure:: _static/kde-vs-histogram.png
     :height: 300 px
