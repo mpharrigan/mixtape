@@ -1,0 +1,29 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<h3>Versions
+    <span style="font-size: 50%">
+        <a href="#" id="versionhide">Show/Hide</a>
+    </span>
+</h3>
+
+<div id="versiondiv">
+    <p>This is documentation for {{ release }}</p>
+
+    <p style="margin-top: -0.5em">Also see documentation for:</p>
+
+    <ul id="versionselector">
+        <li><a href="#">3.3</a></li>
+        <li><a href="#">3.2</a></li>
+        <li><a href="#">3.1</a></li>
+        <li><a href="#">3.0</a></li>
+        <li><a href="#">2.8</a></li>
+        <li><a href="#">Development</a></li>
+    </ul>
+</div>
+
+<script>
+    $("#versiondiv").hide();
+    $("#versionhide").click(function () {
+        $("#versiondiv").toggle(200);
+    });
+</script>
