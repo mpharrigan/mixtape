@@ -23,7 +23,8 @@
 
 <script>
     $("#versiondiv").hide();
-    $("#versionhide").click(function () {
+    $("#versionhide").click(function (event) {
+        event.preventDefault();
         $("#versiondiv").toggle(200);
     });
 </script>
