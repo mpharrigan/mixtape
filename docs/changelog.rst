@@ -15,6 +15,10 @@ API Changes
 New Features
 ~~~~~~~~~~~~
 
+- The NumpyDirDataset can accept tuples of integers as keys, and will create
+  a directory structure as appropriate. `ds[9752, 0, 1] = np.array()` will
+  put a file called `000000001.npy` under the directory `dsname/09752/00000/`
+
 
 Improvements
 ~~~~~~~~~~~~
