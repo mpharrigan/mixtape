@@ -5,20 +5,21 @@
 
 from __future__ import absolute_import, print_function, division
 
-import sys
+import getpass
+import glob
 import os
 import re
-import glob
-from os.path import join, exists, expanduser
 import socket
-import getpass
-from datetime import datetime
+import sys
 from collections import Sequence
+from datetime import datetime
+from os.path import join, exists, expanduser
 
-import tables
 import mdtraj as md
-from mdtraj.core.trajectory import _parse_topology
 import numpy as np
+import tables
+from mdtraj.core.trajectory import _parse_topology
+
 from . import version
 
 _PYTABLES_DISABLE_COMPRESSION = tables.Filters(complevel=0)
@@ -238,7 +239,7 @@ class _BaseDataset(Sequence):
         raise NotImplementedError('implemented in subclass')
 
     def __len__(self):
-        return sum(1 for xx in self.keys())
+        return sum(1 for _ in self.keys())
 
     def __getitem__(self, i):
         if isinstance(i, slice):
@@ -283,7 +284,7 @@ class _BaseDataset(Sequence):
 
 
 class NumpyDirDataset(_BaseDataset):
-    """MSMBuilder dataset container
+    """A dataset consisting of a directory full of binary numpy files
 
     Parameters
     ----------
@@ -294,8 +295,8 @@ class NumpyDirDataset(_BaseDataset):
 
     Examples
     --------
-    for X in Dataset('path/to/dataset'):
-        print X
+    with NumpyDirDataset("path", 'w') as ds:
+        ds[4] = np.arange(30)
     """
 
     _ITEM_FORMAT = '%08d.npy'
@@ -322,10 +323,10 @@ class NumpyDirDataset(_BaseDataset):
         return np.save(filename, x)
 
     def keys(self):
-        for fn in sorted(os.listdir(os.path.expanduser(self.path)),
-                         key=_keynat):
+        full_path = os.path.expanduser(self.path)
+        for fn in sorted(os.listdir(full_path), key=_keynat):
             match = self._ITEM_RE.match(fn)
-            if match:
+            if match is not None:
                 yield int(match.group(1))
 
     @property
