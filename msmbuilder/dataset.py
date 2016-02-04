@@ -362,7 +362,7 @@ class NumpyDirDataset(_BaseDataset):
             if os.path.isdir(full_fn):
                 match = self.inter_re.match(fn)
                 if match is not None:
-                    newinds = inds + [int(match.group(1))]
+                    newinds = inds + (int(match.group(1)),)
                     newdir = full_fn
                     # wish we had yield from...
                     for ret in self._keys_recurse(newdir, newinds):
@@ -376,7 +376,11 @@ class NumpyDirDataset(_BaseDataset):
             # I think this is ok
             match = self.item_re.match(fn)
             if match is not None:
-                yield inds + (int(match.group(1)),)
+                key = int(match.group(1))
+                if len(inds) > 0:
+                    yield inds + (key,)
+                else:
+                    yield key
             else:
                 warnings.warn("Unknown file found in '{}': '{}'"
                               .format(curdir, fn))
@@ -384,7 +388,8 @@ class NumpyDirDataset(_BaseDataset):
     def keys(self):
         root = os.path.expanduser(self.path)
         # wish we had yield from...
-        for key in self._keys_recurse(root, tuple()):
+        for key in sorted(self._keys_recurse(root, tuple()),
+                          key=_tuples_and_ints):
             yield key
 
     @property
@@ -540,6 +545,13 @@ class MDTrajDataset(_BaseDataset):
         return self._PROVENANCE_TEMPLATE.format(
             path=self.path, topology=self.topology,
             atom_indices=self.atom_indices, stride=self.stride)
+
+
+def _tuples_and_ints(x):
+    try:
+        return tuple(x)
+    except TypeError:
+        return (x,)
 
 
 def _dim_match(arr):

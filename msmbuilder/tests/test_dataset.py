@@ -192,7 +192,7 @@ def test_order_1():
         with dataset('ds1/', 'w', 'dir-npy') as ds1:
             for i in range(20):
                 ds1[i] = np.random.randn(10)
-            assert list(ds1.keys()) == list(range(20))
+            assert list(ds1.keys()) == list(range(20)), list(ds1.keys())
 
 
 def test_append_dirnpy():
@@ -278,9 +278,33 @@ def test_nesting_2():
                 assert k == keys[i]
                 np.testing.assert_array_equal(ds[k], v)
 
-            for i, (k, v) in enumerate(ds[:]):
-                assert k == keys[i]
-                np.testing.assert_array_equal(ds[k], v)
+            for i, v in enumerate(ds[:]):
+                np.testing.assert_array_equal(ds[keys[i]], v)
+
+            os.path.isdir("ds/00000")
+            os.path.isdir("ds/00001")
+            os.path.isfile("ds/00000/00000083.npy")
+
+
+def test_nesting_list():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy') as ds:
+            ds[[0, 1]] = np.random.randn(10, 1)
+            ds[[0, 2]] = np.random.randn(10, 2)
+            ds[[1, 83]] = np.random.randn(10, 3)
+
+            keys = [
+                [0, 1],
+                [0, 2],
+                [1, 83],
+            ]
+
+            for i, (k, v) in enumerate(ds.items()):
+                assert k == tuple(keys[i])
+                np.testing.assert_array_equal(ds[keys[i]], v)
+
+            for i, v in enumerate(ds[:]):
+                np.testing.assert_array_equal(ds[keys[i]], v)
 
             os.path.isdir("ds/00000")
             os.path.isdir("ds/00001")
@@ -301,6 +325,32 @@ def test_nesting_sort():
                 (0, 1, 82),
                 (0, 1, 83),
             ]
+
+            for i, (k, v) in enumerate(ds.items()):
+                assert k == keys[i]
+                np.testing.assert_array_equal(ds[k], v)
+
+
+def test_nesting_somelevels():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy') as ds:
+            ds[0] = np.random.randn(10, 1)
+            ds[0, 1] = np.random.randn(10, 1)
+            ds[0, 1, 2] = np.random.randn(10, 1)
+            ds[0, 1, 3] = np.random.randn(10, 3)
+            ds[0, 8, 2] = np.random.randn(10, 1)
+            ds[0, 8, 3] = np.random.randn(10, 3)
+
+            keys = [
+                0,
+                (0, 1),
+                (0, 1, 2),
+                (0, 1, 3),
+                (0, 8, 2),
+                (0, 8, 3),
+            ]
+
+            assert keys == list(ds.keys()), keys
 
             for i, (k, v) in enumerate(ds.items()):
                 assert k == keys[i]
