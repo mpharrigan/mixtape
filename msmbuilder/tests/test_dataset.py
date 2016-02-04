@@ -237,3 +237,71 @@ def test_items():
         np.testing.assert_array_equal(ds[:][2], ds[5])
 
         ds.close()
+
+
+def test_nesting_1():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy') as ds:
+            ds[0, 0, 1] = np.random.randn(10, 1)
+            ds[0, 0, 2] = np.random.randn(10, 2)
+            ds[0, 1, 83] = np.random.randn(10, 3)
+
+            keys = [
+                (0, 0, 1),
+                (0, 0, 2),
+                (0, 1, 83),
+            ]
+
+            for i, (k, v) in enumerate(ds.items()):
+                assert k == keys[i]
+                np.testing.assert_array_equal(ds[k], v)
+
+            os.path.isdir("ds/00000/00000")
+            os.path.isdir("ds/00000/00001")
+            os.path.isfile("ds/00000/00000/00000083.npy")
+
+
+def test_nesting_2():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy') as ds:
+            ds[0, 1] = np.random.randn(10, 1)
+            ds[0, 2] = np.random.randn(10, 2)
+            ds[1, 83] = np.random.randn(10, 3)
+
+            keys = [
+                (0, 1),
+                (0, 2),
+                (1, 83),
+            ]
+
+            for i, (k, v) in enumerate(ds.items()):
+                assert k == keys[i]
+                np.testing.assert_array_equal(ds[k], v)
+
+            for i, (k, v) in enumerate(ds[:]):
+                assert k == keys[i]
+                np.testing.assert_array_equal(ds[k], v)
+
+            os.path.isdir("ds/00000")
+            os.path.isdir("ds/00001")
+            os.path.isfile("ds/00000/00000083.npy")
+
+
+def test_nesting_sort():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy') as ds:
+            ds[0, 0, 1] = np.random.randn(10, 1)
+            ds[0, 1, 83] = np.random.randn(10, 3)
+            ds[0, 1, 82] = np.random.randn(10, 3)
+            ds[0, 0, 2] = np.random.randn(10, 2)
+
+            keys = [
+                (0, 0, 1),
+                (0, 0, 2),
+                (0, 1, 82),
+                (0, 1, 83),
+            ]
+
+            for i, (k, v) in enumerate(ds.items()):
+                assert k == keys[i]
+                np.testing.assert_array_equal(ds[k], v)

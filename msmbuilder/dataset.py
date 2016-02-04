@@ -5,12 +5,14 @@
 
 from __future__ import absolute_import, print_function, division
 
+import errno
 import getpass
 import glob
 import os
 import re
 import socket
 import sys
+import warnings
 from collections import Sequence
 from datetime import datetime
 from os.path import join, exists, expanduser
@@ -299,14 +301,41 @@ class NumpyDirDataset(_BaseDataset):
         ds[4] = np.arange(30)
     """
 
-    _ITEM_FORMAT = '%08d.npy'
-    _ITEM_RE = re.compile('(\d{8}).npy')
-    _PROVENANCE_FILE = 'PROVENANCE.txt'
+    # We write out padded to 8 places. If the number does not fit into
+    # this width, it will spill over and not truncate (good)
+    # We formulate the regex to accept 8 or more digits
+    item_fmt = "{index:08d}.npy"
+    item_re = re.compile(r'(\d{8}\d*).npy')
+
+    # Starting in v3.4, we allow an arbitrary depth of nested integer
+    # indices (for example project/run/clone in foldingathome)
+    inter_fmt = "{index:05d}"
+    inter_re = re.compile(r'(\d{5}\d*)')
+
+    provenance_fn = 'PROVENANCE.txt'
+
+    def _get_filename(self, index, make_dirs=False):
+        # Handle tuples
+        try:
+            filename = join(self.path, *[self.inter_fmt.format(index=i)
+                                         for i in index[:-1]])
+            i = index[-1]
+            try:
+                os.makedirs(filename)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
+        except TypeError:
+            filename = self.path
+            i = index
+
+        filename = join(filename, self.item_fmt.format(index=i))
+        return filename
 
     def get(self, i, mmap=False):
         mmap_mode = 'r' if mmap else None
 
-        filename = join(self.path, self._ITEM_FORMAT % i)
+        filename = self._get_filename(i)
         if self.verbose:
             print('[NumpydirDataset] loading %s' % filename)
         try:
@@ -317,28 +346,57 @@ class NumpyDirDataset(_BaseDataset):
     def set(self, i, x):
         if self.mode not in 'wa':
             raise IOError('Dataset not opened for writing')
-        filename = join(self.path, self._ITEM_FORMAT % i)
+
+        filename = self._get_filename(i, make_dirs=True)
         if self.verbose:
             print('[NumpydirDataset] saving %s' % filename)
         return np.save(filename, x)
 
-    def keys(self):
-        full_path = os.path.expanduser(self.path)
-        for fn in sorted(os.listdir(full_path), key=_keynat):
-            match = self._ITEM_RE.match(fn)
+    def _keys_recurse(self, curdir, inds):
+        for fn in os.listdir(curdir):
+            full_fn = join(curdir, fn)
+            if fn == self.provenance_fn:
+                # Prevent warnings for provenance file
+                continue
+
+            if os.path.isdir(full_fn):
+                match = self.inter_re.match(fn)
+                if match is not None:
+                    newinds = inds + [int(match.group(1))]
+                    newdir = full_fn
+                    # wish we had yield from...
+                    for ret in self._keys_recurse(newdir, newinds):
+                        yield ret
+                else:
+                    warnings.warn("Unknown directory found in '{}': '{}'"
+                                  .format(curdir, fn))
+                continue
+
+            # What if there is a file with the same index as a directory?
+            # I think this is ok
+            match = self.item_re.match(fn)
             if match is not None:
-                yield int(match.group(1))
+                yield inds + (int(match.group(1)),)
+            else:
+                warnings.warn("Unknown file found in '{}': '{}'"
+                              .format(curdir, fn))
+
+    def keys(self):
+        root = os.path.expanduser(self.path)
+        # wish we had yield from...
+        for key in self._keys_recurse(root, tuple()):
+            yield key
 
     @property
     def provenance(self):
         try:
-            with open(join(self.path, self._PROVENANCE_FILE), 'r') as f:
+            with open(join(self.path, self.provenance_fn), 'r') as f:
                 return f.read()
         except IOError:
             return 'No available provenance'
 
     def _write_provenance(self, previous=None, comments=''):
-        with open(join(self.path, self._PROVENANCE_FILE), 'w') as f:
+        with open(join(self.path, self.provenance_fn), 'w') as f:
             p = self._build_provenance(previous=previous, comments=comments)
             f.write(p)
 
