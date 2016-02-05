@@ -320,11 +320,13 @@ class NumpyDirDataset(_BaseDataset):
             filename = join(self.path, *[self.inter_fmt.format(index=i)
                                          for i in index[:-1]])
             i = index[-1]
-            try:
-                os.makedirs(filename)
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
+
+            if make_dirs:
+                try:
+                    os.makedirs(filename)
+                except OSError as e:
+                    if e.errno != errno.EEXIST:
+                        raise
         except TypeError:
             filename = self.path
             i = index

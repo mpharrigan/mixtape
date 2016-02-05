@@ -355,3 +355,24 @@ def test_nesting_somelevels():
             for i, (k, v) in enumerate(ds.items()):
                 assert k == keys[i]
                 np.testing.assert_array_equal(ds[k], v)
+
+
+def test_no_dir_creation_on_read():
+    xx = np.random.randn(10, 1)
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy') as ds:
+
+            ds[0, 1, 2] = xx
+
+        with dataset('ds') as ds:
+            np.testing.assert_array_equal(xx, ds[0, 1, 2])
+
+            try:
+                # doesn't exist
+                yy = ds[1, 2, 3]
+            except:
+                pass
+
+            assert os.path.isdir("ds/00000/00001")
+            assert not os.path.exists("ds/00001")
+            assert not os.path.exists("ds/00001/00002")
