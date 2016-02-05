@@ -421,16 +421,16 @@ def test_nesting_nopad():
             assert os.path.isfile("ds/1/1/84.npy")
 
 
-def test_strict_filenames():
+def test_zero_pad():
     with tempdir():
         with dataset('ds', 'w', fmt='dir-npy') as ds:
             ds[0, 1] = np.random.randn(10, 1)
             ds[0, 2] = np.random.randn(10, 2)
 
-        with open("ds/00000/003.npy", 'w') as f:
-            f.write("I'm not actually a numpy files!")
+        with open("ds/00000/3.npy", 'w') as f:
+            f.write("I'm not actually a numpy file!")
 
-        with dataset('ds', strict_filenames=True) as ds:
+        with dataset('ds') as ds:
             keys = [
                 (0, 1),
                 (0, 2),
@@ -442,26 +442,20 @@ def test_strict_filenames():
 
             assert 'Unknown file' in str(w[0].message)
 
-        with dataset("ds") as ds:
-            keys = [
-                (0, 1),
-                (0, 2),
-                (0, 3),
-            ]
-            assert keys == list(ds.keys()), list(ds.keys())
+        with dataset("ds", zero_pad=False) as ds:
+            with warnings.catch_warnings(record=True) as w:
+                assert list(ds.keys()) == [], list(ds.keys())
 
-            with assert_raises(IndexError):
-                x = ds[0, 3]
-                xx = list(ds)
+            assert "Unknown directory" in str(w[0].message)
 
 
-def test_loose_filenames():
+def test_no_padding():
     with tempdir():
         with dataset('ds', 'w', fmt='dir-npy', zero_pad=False) as ds:
             ds[0, 1] = np.random.randn(10, 1)
             ds[0, 2] = np.random.randn(10, 2)
 
-        with dataset('ds') as ds:
+        with dataset('ds', zero_pad=False) as ds:
             keys = [
                 (0, 1),
                 (0, 2),

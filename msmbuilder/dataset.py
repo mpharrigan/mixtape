@@ -302,12 +302,8 @@ class NumpyDirDataset(_BaseDataset):
         interacting with the files from outside a dataset object. For example,
         use `ls -v` in bash. Note that the dataset object will always sort
         files and directories correctly by casting their filename to an
-        integer.
-    strict_filenames : bool, default=False
-        If this and zero_pad is true, only read from files that have been
-        zero-padded. Exclude files and directories with insufficient zero
-        padding. If zero_pad is false, this must be false. If this is false,
-        cast filenames to integers as best you can.
+        integer. Not that to read from a dataset without zero padding,
+        this option must be set to False.
 
     Examples
     --------
@@ -317,15 +313,8 @@ class NumpyDirDataset(_BaseDataset):
 
     provenance_fn = 'PROVENANCE.txt'
 
-    def __init__(self, path, mode='r', verbose=False,
-                 zero_pad=True, strict_filenames=None):
+    def __init__(self, path, mode='r', verbose=False, zero_pad=True):
         super(NumpyDirDataset, self).__init__(path, mode=mode, verbose=verbose)
-
-        if (not zero_pad) and strict_filenames:
-            raise ValueError("If you're not writing zero-padded filenames, "
-                             "it's probably a bad idea to set it so you won't "
-                             "be able to read them! strict_filenames cannot "
-                             "be true while zero_pad is false")
 
         # Starting in v3.4, we allow an arbitrary depth of nested integer
         # indices (for example project/run/clone in foldingathome)
@@ -337,16 +326,15 @@ class NumpyDirDataset(_BaseDataset):
             # We formulate the regex to accept 8 or more digits
             self.item_fmt = "{index:08d}.npy"
             self.inter_fmt = "{index:05d}"
+            self.item_re = re.compile(r'(\d{8}\d*).npy$')
+            self.inter_re = re.compile(r'(\d{5}\d*)$')
         else:
             self.item_fmt = "{index:d}.npy"
             self.inter_fmt = "{index:d}"
-
-        if strict_filenames:
-            self.item_re = re.compile(r'(\d{8}\d*).npy')
-            self.inter_re = re.compile(r'(\d{5}\d*)')
-        else:
-            self.item_re = re.compile(r'(\d+).npy')
-            self.inter_re = re.compile(r'(\d+)')
+            # In our regex, make sure there's no zero padding
+            # but add a special case for the single number 0
+            self.item_re = re.compile(r'([1-9]\d*|0).npy$')
+            self.inter_re = re.compile(r'([1-9]\d*|0)$')
 
     def _get_filename(self, index, make_dirs=False):
         # Handle tuples
