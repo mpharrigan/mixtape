@@ -195,6 +195,19 @@ def test_order_1():
             assert list(ds1.keys()) == list(range(20)), list(ds1.keys())
 
 
+def test_order_nopad():
+    with tempdir():
+        # with dataset('ds1.h5', 'w', 'hdf5') as ds1:
+        # for i in range(20):
+        # ds1[i] = np.random.randn(10)
+        # assert list(ds1.keys()) == list(range(20))
+
+        with dataset('ds1/', 'w', 'dir-npy', zero_pad=False) as ds1:
+            for i in range(20):
+                ds1[i] = np.random.randn(10)
+            assert list(ds1.keys()) == list(range(20)), list(ds1.keys())
+
+
 def test_append_dirnpy():
     path = tempfile.mkdtemp()
     shutil.rmtree(path)
@@ -256,9 +269,9 @@ def test_nesting_1():
                 assert k == keys[i]
                 np.testing.assert_array_equal(ds[k], v)
 
-            os.path.isdir("ds/00000/00000")
-            os.path.isdir("ds/00000/00001")
-            os.path.isfile("ds/00000/00000/00000083.npy")
+            assert os.path.isdir("ds/00000/00000")
+            assert os.path.isdir("ds/00000/00001")
+            assert os.path.isfile("ds/00000/00001/00000083.npy")
 
 
 def test_nesting_2():
@@ -281,9 +294,9 @@ def test_nesting_2():
             for i, v in enumerate(ds[:]):
                 np.testing.assert_array_equal(ds[keys[i]], v)
 
-            os.path.isdir("ds/00000")
-            os.path.isdir("ds/00001")
-            os.path.isfile("ds/00000/00000083.npy")
+            assert os.path.isdir("ds/00000")
+            assert os.path.isdir("ds/00001")
+            assert os.path.isfile("ds/00001/00000083.npy")
 
 
 def test_nesting_list():
@@ -306,9 +319,9 @@ def test_nesting_list():
             for i, v in enumerate(ds[:]):
                 np.testing.assert_array_equal(ds[keys[i]], v)
 
-            os.path.isdir("ds/00000")
-            os.path.isdir("ds/00001")
-            os.path.isfile("ds/00000/00000083.npy")
+            assert os.path.isdir("ds/00000")
+            assert os.path.isdir("ds/00001")
+            assert os.path.isfile("ds/00001/00000083.npy")
 
 
 def test_nesting_sort():
@@ -350,7 +363,7 @@ def test_nesting_somelevels():
                 (0, 8, 3),
             ]
 
-            assert keys == list(ds.keys()), keys
+            assert keys == list(ds.keys()), list(ds.keys())
 
             for i, (k, v) in enumerate(ds.items()):
                 assert k == keys[i]
@@ -376,3 +389,83 @@ def test_no_dir_creation_on_read():
             assert os.path.isdir("ds/00000/00001")
             assert not os.path.exists("ds/00001")
             assert not os.path.exists("ds/00001/00002")
+
+
+def test_nesting_nopad():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy', zero_pad=False, ) as ds:
+            ds[0, 1] = np.random.randn(10, 1)
+            ds[0, 2] = np.random.randn(10, 2)
+            ds[1, 83] = np.random.randn(10, 3)
+            ds[1, 1, 84] = np.random.randn(10, 3)
+
+            keys = [
+                (0, 1),
+                (0, 2),
+                (1, 1, 84),
+                (1, 83),
+            ]
+
+            print(list(ds.keys()))
+
+            for i, (k, v) in enumerate(ds.items()):
+                assert k == keys[i]
+                np.testing.assert_array_equal(ds[k], v)
+
+            for i, v in enumerate(ds[:]):
+                np.testing.assert_array_equal(ds[keys[i]], v)
+
+            assert os.path.isdir("ds/0")
+            assert os.path.isdir("ds/1")
+            assert os.path.isfile("ds/1/83.npy")
+            assert os.path.isfile("ds/1/1/84.npy")
+
+
+def test_strict_filenames():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy') as ds:
+            ds[0, 1] = np.random.randn(10, 1)
+            ds[0, 2] = np.random.randn(10, 2)
+
+        with open("ds/00000/003.npy", 'w') as f:
+            f.write("I'm not actually a numpy files!")
+
+        with dataset('ds', strict_filenames=True) as ds:
+            keys = [
+                (0, 1),
+                (0, 2),
+            ]
+            with warnings.catch_warnings(record=True) as w:
+                assert keys == list(ds.keys()), list(ds.keys())
+                x = list(ds)
+                assert len(x) == 2
+
+            assert 'Unknown file' in str(w[0].message)
+
+        with dataset("ds") as ds:
+            keys = [
+                (0, 1),
+                (0, 2),
+                (0, 3),
+            ]
+            assert keys == list(ds.keys()), list(ds.keys())
+
+            with assert_raises(IndexError):
+                x = ds[0, 3]
+                xx = list(ds)
+
+
+def test_loose_filenames():
+    with tempdir():
+        with dataset('ds', 'w', fmt='dir-npy', zero_pad=False) as ds:
+            ds[0, 1] = np.random.randn(10, 1)
+            ds[0, 2] = np.random.randn(10, 2)
+
+        with dataset('ds') as ds:
+            keys = [
+                (0, 1),
+                (0, 2),
+            ]
+            assert keys == list(ds.keys()), list(ds.keys())
+            x = list(ds)
+            assert len(x) == 2

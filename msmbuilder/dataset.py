@@ -68,7 +68,7 @@ def dataset(path, mode='r', fmt=None, verbose=False, **kwargs):
         raise ValueError('mode="%s", but no fmt. fmt=%s' % (mode, fmt))
 
     if fmt == 'dir-npy':
-        return NumpyDirDataset(path, mode=mode, verbose=verbose)
+        return NumpyDirDataset(path, mode=mode, verbose=verbose, **kwargs)
     elif fmt == 'mdtraj':
         return MDTrajDataset(path, mode=mode, verbose=verbose, **kwargs)
     elif fmt == 'hdf5':
@@ -294,6 +294,20 @@ class NumpyDirDataset(_BaseDataset):
     mode : {'r', 'w', 'a'}
         Read, write, or append. If mode is set to 'a' or 'w',
         duplicate keys will be overwritten.
+    verbose : bool, default=False
+        Whether to print saving and loading status to stdout
+    zero_pad : bool, default=True
+        Whether to pad filenames with zeros so lexicographical sort works.
+        If set to false, you must do a "version sort" or "natural sort" when
+        interacting with the files from outside a dataset object. For example,
+        use `ls -v` in bash. Note that the dataset object will always sort
+        files and directories correctly by casting their filename to an
+        integer.
+    strict_filenames : bool, default=False
+        If this and zero_pad is true, only read from files that have been
+        zero-padded. Exclude files and directories with insufficient zero
+        padding. If zero_pad is false, this must be false. If this is false,
+        cast filenames to integers as best you can.
 
     Examples
     --------
@@ -301,18 +315,38 @@ class NumpyDirDataset(_BaseDataset):
         ds[4] = np.arange(30)
     """
 
-    # We write out padded to 8 places. If the number does not fit into
-    # this width, it will spill over and not truncate (good)
-    # We formulate the regex to accept 8 or more digits
-    item_fmt = "{index:08d}.npy"
-    item_re = re.compile(r'(\d{8}\d*).npy')
-
-    # Starting in v3.4, we allow an arbitrary depth of nested integer
-    # indices (for example project/run/clone in foldingathome)
-    inter_fmt = "{index:05d}"
-    inter_re = re.compile(r'(\d{5}\d*)')
-
     provenance_fn = 'PROVENANCE.txt'
+
+    def __init__(self, path, mode='r', verbose=False,
+                 zero_pad=True, strict_filenames=None):
+        super(NumpyDirDataset, self).__init__(path, mode=mode, verbose=verbose)
+
+        if (not zero_pad) and strict_filenames:
+            raise ValueError("If you're not writing zero-padded filenames, "
+                             "it's probably a bad idea to set it so you won't "
+                             "be able to read them! strict_filenames cannot "
+                             "be true while zero_pad is false")
+
+        # Starting in v3.4, we allow an arbitrary depth of nested integer
+        # indices (for example project/run/clone in foldingathome)
+        # Use self.inter_* variables to configure this
+
+        if zero_pad:
+            # We write out padded to 8 places. If the number does not fit into
+            # this width, it will spill over and not truncate (good)
+            # We formulate the regex to accept 8 or more digits
+            self.item_fmt = "{index:08d}.npy"
+            self.inter_fmt = "{index:05d}"
+        else:
+            self.item_fmt = "{index:d}.npy"
+            self.inter_fmt = "{index:d}"
+
+        if strict_filenames:
+            self.item_re = re.compile(r'(\d{8}\d*).npy')
+            self.inter_re = re.compile(r'(\d{5}\d*)')
+        else:
+            self.item_re = re.compile(r'(\d+).npy')
+            self.inter_re = re.compile(r'(\d+)')
 
     def _get_filename(self, index, make_dirs=False):
         # Handle tuples
