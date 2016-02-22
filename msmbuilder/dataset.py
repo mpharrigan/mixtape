@@ -166,7 +166,7 @@ class _BaseDataset(Sequence):
         estimator
             The fit estimator.
         """
-        estimator.fit(self)
+        estimator.fit(self[:])
         return estimator
 
     def transform_with(self, estimator, out_ds, fmt=None):
