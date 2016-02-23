@@ -653,23 +653,23 @@ class ContactFeaturizer(Featurizer):
     Parameters
     ----------
     contacts : np.ndarray or 'all'
-        array containing (0-indexed) indices of the residues to compute the
-        contacts for. (e.g. np.array([[0, 10], [0, 11]]) would compute
+        array containing 0-indexed indices of the residues to compute the
+        contacts for. ``np.array([[0, 10], [0, 11]])`` would compute
         the contact between residue 0 and residue 10 as well as
-        the contact between residue 0 and residue 11.) [NOTE: if no
-        array is passed then 'all' contacts are calculated. This means
-        that the result will contain all contacts between residues
-        separated by at least 3 residues.]
+        the contact between residue 0 and residue 11. The default, 'all',
+        means that the result will contain all contacts between residues
+        separated by at least 3 residues.
     scheme : {'ca', 'closest', 'closest-heavy'}
-        scheme to determine the distance between two residues:
-            'ca' : distance between two residues is given by the distance
-                between their alpha carbons
-            'closest' : distance is the closest distance between any
-                two atoms in the residues
-            'closest-heavy' : distance is the closest distance between
-                any two non-hydrogen atoms in the residues
+        Scheme to determine the distance between two residues
+
+         - 'ca': distance between two residues is given by the distance
+            between their alpha carbons
+         - 'closest': distance is the closest distance between any
+            two atoms in the residues
+         - 'closest-heavy': distance is the closest distance between
+            any two non-hydrogen atoms in the residues
     ignore_nonprotein : bool
-        When using `contact==all`, don't compute contacts between
+        When contact is set to 'all', don't compute contacts between
         "residues" which are not protein (i.e. do not contain an alpha
         carbon).
     """
