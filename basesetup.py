@@ -1,33 +1,18 @@
 from __future__ import print_function, absolute_import
-import os
-import sys
+
 import imp
 import json
-import string
+import os
 import shutil
 import subprocess
+import sys
 import tempfile
-from distutils.dep_util import newer_group
-from distutils.core import Extension
-from distutils.errors import DistutilsExecError
 from distutils.ccompiler import new_compiler
-from distutils.sysconfig import customize_compiler, get_config_vars
 from distutils.command.build_ext import build_ext as _build_ext
-
-
-def find_packages():
-    """Find all of mdtraj's python packages.
-    Adapted from IPython's setupbase.py. Copyright IPython
-    contributors, licensed under the BSD license.
-    """
-    packages = ['mdtraj.scripts']
-    for dir,subdirs,files in os.walk('MDTraj'):
-        package = dir.replace(os.path.sep, '.')
-        if '__init__.py' not in files:
-            # not a package
-            continue
-        packages.append(package.replace('MDTraj', 'mdtraj'))
-    return packages
+from distutils.core import Extension
+from distutils.dep_util import newer_group
+from distutils.errors import DistutilsExecError
+from distutils.sysconfig import customize_compiler, get_config_vars
 
 
 def check_dependencies(dependencies):
