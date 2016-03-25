@@ -36,7 +36,8 @@ try:
     if Cython.__version__ < '0.18':
         raise ImportError()
 except ImportError:
-    print('Cython version 0.18 or later is required. Try "easy_install cython"')
+    print('Cython version 0.18 or later is required. '
+          'Try "conda install cython"')
     sys.exit(1)
 
 # #########################
