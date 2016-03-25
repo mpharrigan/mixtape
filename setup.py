@@ -1,14 +1,10 @@
-"""MSMBuilder: Statistical models for Biomolecular Dynamics
-"""
-
 from __future__ import print_function, absolute_import
 
-DOCLINES = __doc__.split("\n")
-
 import sys
-import numpy as np
-import mdtraj
 from os.path import join as pjoin
+
+import mdtraj
+import numpy as np
 from setuptools import setup, Extension, find_packages
 
 try:
