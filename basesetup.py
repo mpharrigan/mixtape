@@ -238,14 +238,14 @@ def git_version():
 
 
 def write_version_py(version, isreleased, filename):
-    cnt = """
-# This file is generated in setup.py at build time.
-version = '{version}'
-short_version = '{short_version}'
-full_version = '{full_version}'
-git_revision = '{git_revision}'
-release = {release}
-"""
+    cnt = '\n'.join([
+        "# This file is generated in setup.py at build time.",
+        "version = '{version}'",
+        "short_version = '{short_version}'",
+        "full_version = '{full_version}'",
+        "git_revision = '{git_revision}'",
+        "release = {release}",
+    ])
     # git_revision
     if os.path.exists('.git'):
         git_revision = git_version()
