@@ -176,7 +176,8 @@ exit(status)
         return status == 0
 
     def _print_support_start(self, feature):
-        print('Attempting to autodetect {0:6} support...'.format(feature), end=' ')
+        print('Attempting to autodetect {0:6} support...'
+              .format(feature), end=' ')
 
     def _print_support_end(self, feature, status):
         if status is True:
@@ -186,10 +187,12 @@ exit(status)
 
     def _detect_openmp(self):
         self._print_support_start('OpenMP')
-        hasopenmp = self.hasfunction('omp_get_num_threads()', extra_postargs=['-fopenmp', '/openmp'])
+        hasopenmp = self.hasfunction('omp_get_num_threads()',
+                                     extra_postargs=['-fopenmp', '/openmp'])
         needs_gomp = hasopenmp
         if not hasopenmp:
-            hasopenmp = self.hasfunction('omp_get_num_threads()', libraries=['gomp'])
+            hasopenmp = self.hasfunction('omp_get_num_threads()',
+                                         libraries=['gomp'])
             needs_gomp = hasopenmp
         self._print_support_end('OpenMP', hasopenmp)
         return hasopenmp, needs_gomp
@@ -198,17 +201,17 @@ exit(status)
         "Does this compiler support SSE3 intrinsics?"
         self._print_support_start('SSE3')
         result = self.hasfunction('__m128 v; _mm_hadd_ps(v,v)',
-                           include='<pmmintrin.h>',
-                           extra_postargs=['-msse3'])
+                                  include='<pmmintrin.h>',
+                                  extra_postargs=['-msse3'])
         self._print_support_end('SSE3', result)
         return result
 
     def _detect_sse41(self):
         "Does this compiler support SSE4.1 intrinsics?"
         self._print_support_start('SSE4.1')
-        result = self.hasfunction( '__m128 v; _mm_round_ps(v,0x00)',
-                           include='<smmintrin.h>',
-                           extra_postargs=['-msse4'])
+        result = self.hasfunction('__m128 v; _mm_round_ps(v,0x00)',
+                                  include='<smmintrin.h>',
+                                  extra_postargs=['-msse4'])
         self._print_support_end('SSE4.1', result)
         return result
 
@@ -279,7 +282,6 @@ class StaticLibrary(Extension):
 
 
 class build_ext(_build_ext):
-
     def build_extension(self, ext):
         if isinstance(ext, StaticLibrary):
             self.build_static_extension(ext)
@@ -292,9 +294,9 @@ class build_ext(_build_ext):
         sources = ext.sources
         if sources is None or not isinstance(sources, (list, tuple)):
             raise DistutilsSetupError(
-                  ("in 'ext_modules' option (extension '%s'), " +
-                   "'sources' must be present and must be " +
-                   "a list of source filenames") % ext.name)
+                ("in 'ext_modules' option (extension '%s'), " +
+                 "'sources' must be present and must be " +
+                 "a list of source filenames") % ext.name)
         sources = list(sources)
 
         ext_path = self.get_ext_fullpath(ext.name)
@@ -310,12 +312,12 @@ class build_ext(_build_ext):
         for undef in ext.undef_macros:
             macros.append((undef,))
         objects = self.compiler.compile(sources,
-                                         output_dir=self.build_temp,
-                                         macros=macros,
-                                         include_dirs=ext.include_dirs,
-                                         debug=self.debug,
-                                         extra_postargs=extra_args,
-                                         depends=ext.depends)
+                                        output_dir=self.build_temp,
+                                        macros=macros,
+                                        include_dirs=ext.include_dirs,
+                                        debug=self.debug,
+                                        extra_postargs=extra_args,
+                                        depends=ext.depends)
         self._built_objects = objects[:]
         if ext.extra_objects:
             objects.extend(ext.extra_objects)
@@ -326,7 +328,7 @@ class build_ext(_build_ext):
         libname = os.path.splitext(os.path.basename(ext_path))[0]
         output_dir = os.path.dirname(ext_path)
         if (self.compiler.static_lib_format.startswith('lib') and
-            libname.startswith('lib')):
+                libname.startswith('lib')):
             libname = libname[3:]
 
         if not os.path.exists(output_dir):
@@ -334,9 +336,9 @@ class build_ext(_build_ext):
             os.makedirs(output_dir)
 
         self.compiler.create_static_lib(objects,
-            output_libname=libname,
-            output_dir=output_dir,
-            target_lang=language)
+                                        output_libname=libname,
+                                        output_dir=output_dir,
+                                        target_lang=language)
 
         for item in ext.export_include:
             shutil.copy(item, output_dir)
