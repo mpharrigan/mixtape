@@ -10,6 +10,7 @@ import numpy as np
 import mdtraj
 from os.path import join as pjoin
 from setuptools import setup, Extension, find_packages
+
 try:
     sys.dont_write_bytecode = True
     sys.path.insert(0, '.')
@@ -18,7 +19,6 @@ try:
                            check_dependencies)
 finally:
     sys.dont_write_bytecode = False
-
 
 if '--debug' in sys.argv:
     sys.argv.remove('--debug')
@@ -30,7 +30,6 @@ if '--disable-openmp' in sys.argv:
     DISABLE_OPENMP = True
 else:
     DISABLE_OPENMP = False
-
 
 try:
     import Cython
@@ -82,7 +81,6 @@ if any(cmd in sys.argv for cmd in ('install', 'build', 'develop')):
         ('tables', 'pytables'),
     ))
 
-
 # Where to find extensions
 MSMDIR = 'msmbuilder/msm/'
 HMMDIR = 'msmbuilder/hmm/'
@@ -128,7 +126,6 @@ extensions.append(
               libraries=compiler.compiler_libraries_openmp,
               include_dirs=['msmbuilder/src', np.get_include()]))
 
-
 extensions.append(
     Extension('msmbuilder.msm._metzner_mcmc_fast',
               sources=[pjoin(MSMDIR, '_metzner_mcmc_fast.pyx'),
@@ -136,7 +133,6 @@ extensions.append(
               libraries=compiler.compiler_libraries_openmp,
               extra_compile_args=compiler.compiler_args_openmp,
               include_dirs=[pjoin(MSMDIR, 'src'), np.get_include()]))
-
 
 extensions.append(
     Extension('msmbuilder.libdistance',
@@ -156,7 +152,6 @@ extensions.append(
               sources=[pjoin(CLUSTERDIR, '_kmedoids.pyx'),
                        pjoin(CLUSTERDIR, 'src', 'kmedoids.cc')],
               include_dirs=[np.get_include()]))
-
 
 extensions.append(
     Extension('msmbuilder.hmm.gaussian',
@@ -191,18 +186,18 @@ write_version_py(VERSION, ISRELEASED, filename='msmbuilder/version.py')
 
 setup(
     name='msmbuilder',
-      author='Robert McGibbon',
-      author_email='rmcgibbo@gmail.com',
+    author='Robert McGibbon',
+    author_email='rmcgibbo@gmail.com',
     description="MSMBuilder: Statistical models for biomolecular dynamics",
     version=VERSION,
-      url='https://github.com/msmbuilder/msmbuilder',
-      platforms=['Linux', 'Mac OS-X', 'Unix'],
-      classifiers=CLASSIFIERS.splitlines(),
+    url='https://github.com/msmbuilder/msmbuilder',
+    platforms=['Linux', 'Mac OS-X', 'Unix'],
+    classifiers=CLASSIFIERS.splitlines(),
     packages=find_packages('msmbuilder'),
-      package_data={'msmbuilder.tests': ['workflows/*']},
-      entry_points={'console_scripts':
-              ['msmb = msmbuilder.scripts.msmb:main']},
-      zip_safe=False,
-      ext_modules=extensions,
+    package_data={'msmbuilder.tests': ['workflows/*']},
+    entry_points={'console_scripts':
+                      ['msmb = msmbuilder.scripts.msmb:main']},
+    zip_safe=False,
+    ext_modules=extensions,
     cmdclass={'build_ext': build_ext}
 )
