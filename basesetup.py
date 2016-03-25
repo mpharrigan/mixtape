@@ -116,7 +116,8 @@ class CompilerDetection(object):
         except DistutilsExecError:
             pass
 
-    def hasfunction(self, funcname, include=None, libraries=None, extra_postargs=None):
+    def hasfunction(self, funcname, include=None,
+                    libraries=None, extra_postargs=None):
         # running in a separate subshell lets us prevent unwanted stdout/stderr
         part1 = '''
 from __future__ import print_function
@@ -226,8 +227,8 @@ def git_version():
         env['LANGUAGE'] = 'C'
         env['LANG'] = 'C'
         env['LC_ALL'] = 'C'
-        out = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, env=env).communicate()[0]
+        out = (subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env)
+               .communicate())[0]
         return out
 
     try:
