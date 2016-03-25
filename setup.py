@@ -143,11 +143,12 @@ extensions.append(
               language='c++',
               sources=['msmbuilder/libdistance/libdistance.pyx'],
               # msvc needs to be told "libtheobald", gcc wants just "theobald"
-              libraries=['%stheobald' % ('lib' if compiler.msvc else '')],
+              libraries=['{}theobald'.format('lib' if compiler.msvc else '')],
               include_dirs=["msmbuilder/libdistance/src",
-                            mdtraj_capi['include_dir'], np.get_include()],
+                            mdtraj_capi['include_dir'],
+                            np.get_include()],
               library_dirs=[mdtraj_capi['lib_dir']],
-             ))
+              ))
 
 extensions.append(
     Extension('msmbuilder.cluster._kmedoids',
