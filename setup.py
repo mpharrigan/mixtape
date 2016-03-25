@@ -83,13 +83,12 @@ MSMDIR = 'msmbuilder/msm/'
 HMMDIR = 'msmbuilder/hmm/'
 CLUSTERDIR = 'msmbuilder/cluster/'
 
-
 compiler = CompilerDetection(DISABLE_OPENMP)
 with open('msmbuilder/src/config.pxi', 'w') as f:
-    f.write('''
-DEF DEBUG = {debug}
-DEF OPENMP = {openmp}
-    '''.format(openmp=compiler.openmp_enabled, debug=DEBUG))
+    f.write('\n'.join([
+        'DEF DEBUG = {debug}'.format(debug=DEBUG),
+        'DEF OPENMP = {openmp}'.format(openmp=compiler.openmp_enabled),
+    ]))
 
 extensions = []
 extensions.append(
