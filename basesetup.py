@@ -71,8 +71,12 @@ class CompilerDetection(object):
         self.sse3_enabled = self._detect_sse3() if not self.msvc else True
         self.sse41_enabled = self._detect_sse41() if not self.msvc else True
 
-        self.compiler_args_sse2  = ['-msse2'] if not self.msvc else ['/arch:SSE2']
-        self.compiler_args_sse3  = ['-mssse3'] if (self.sse3_enabled and not self.msvc) else []
+        self.compiler_args_sse2 = (['-msse2']
+                                   if not self.msvc
+                                   else ['/arch:SSE2'])
+        self.compiler_args_sse3 = (['-mssse3']
+                                   if (self.sse3_enabled and not self.msvc)
+                                   else [])
 
         self.compiler_args_sse41, self.define_macros_sse41 = [], []
         if self.sse41_enabled:
