@@ -5,10 +5,7 @@ from __future__ import print_function, absolute_import
 
 DOCLINES = __doc__.split("\n")
 
-import os
 import sys
-import glob
-import traceback
 import numpy as np
 from os.path import join as pjoin
 from setuptools import setup, Extension, find_packages
@@ -19,15 +16,6 @@ try:
 finally:
     sys.dont_write_bytecode = False
 
-try:
-    import mdtraj
-    mdtraj_capi = mdtraj.capi()
-except (ImportError, AttributeError):
-    print('='*80)
-    print('MDTraj version 1.1.X or later is required')
-    print('='*80)
-    traceback.print_exc()
-    sys.exit(1)
 
 if '--debug' in sys.argv:
     sys.argv.remove('--debug')
