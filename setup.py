@@ -188,6 +188,7 @@ extensions.append(
                             pjoin(HMMDIR, 'cephes/')]))
 
 write_version_py(VERSION, ISRELEASED, filename='msmbuilder/version.py')
+
 setup(
     name='msmbuilder',
       author='Robert McGibbon',
