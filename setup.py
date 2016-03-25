@@ -179,7 +179,8 @@ extensions.append(
                        pjoin(HMMDIR, 'cephes/i0.c'),
                        pjoin(HMMDIR, 'cephes/chbevl.c')],
               libraries=compiler.compiler_libraries_openmp,
-              extra_compile_args=compiler.compiler_args_sse3 + compiler.compiler_args_openmp,
+              extra_compile_args=(compiler.compiler_args_sse3
+                                  + compiler.compiler_args_openmp),
               include_dirs=[np.get_include(),
                             HMMDIR,
                             pjoin(HMMDIR, 'src/include/'),
