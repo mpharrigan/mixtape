@@ -7,6 +7,7 @@ DOCLINES = __doc__.split("\n")
 
 import sys
 import numpy as np
+import mdtraj
 from os.path import join as pjoin
 from setuptools import setup, Extension, find_packages
 try:
@@ -39,6 +40,8 @@ except ImportError:
     print('Cython version 0.18 or later is required. '
           'Try "conda install cython"')
     sys.exit(1)
+
+mdtraj_capi = mdtraj.capi()
 
 # #########################
 VERSION = '3.4.0.dev0'
@@ -93,7 +96,7 @@ with open('msmbuilder/src/config.pxi', 'w') as f:
 extensions = []
 extensions.append(
     Extension('msmbuilder.example_datasets._muller',
-              sources=[pjoin('msmbuilder', 'example_datasets', '_muller.pyx')],
+              sources=['msmbuilder/example_datasets/_muller.pyx'],
               include_dirs=[np.get_include()]))
 
 extensions.append(
@@ -117,7 +120,7 @@ extensions.append(
 
 extensions.append(
     Extension('msmbuilder.decomposition._speigh',
-              sources=[pjoin('msmbuilder', 'decomposition', '_speigh.pyx')],
+              sources=['msmbuilder/decomposition/_speigh.pyx'],
               language='c++',
               extra_compile_args=compiler.compiler_args_openmp,
               libraries=compiler.compiler_libraries_openmp,
