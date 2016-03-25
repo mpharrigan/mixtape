@@ -206,9 +206,6 @@ exit(status)
         self._print_support_end('SSE4.1', result)
         return result
 
-################################################################################
-# Writing version control information to the module
-################################################################################
 
 def git_version():
     # Return the git revision as a string
