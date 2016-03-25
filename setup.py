@@ -158,17 +158,14 @@ extensions.append(
               include_dirs=[np.get_include()]))
 
 
-# To get debug symbols on Windows, use
-# extra_link_args=['/DEBUG']
-# extra_compile_args=['/Zi']
-
 extensions.append(
     Extension('msmbuilder.hmm.gaussian',
               language='c++',
               sources=[pjoin(HMMDIR, 'gaussian.pyx'),
                        pjoin(HMMDIR, 'src/GaussianHMMFitter.cpp')],
               libraries=compiler.compiler_libraries_openmp,
-              extra_compile_args=compiler.compiler_args_sse3 + compiler.compiler_args_openmp,
+              extra_compile_args=(compiler.compiler_args_sse3
+                                  + compiler.compiler_args_openmp),
               include_dirs=[np.get_include(),
                             HMMDIR,
                             pjoin(HMMDIR, 'src/include/'),
