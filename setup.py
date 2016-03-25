@@ -188,20 +188,20 @@ extensions.append(
                             pjoin(HMMDIR, 'cephes/')]))
 
 write_version_py(VERSION, ISRELEASED, filename='msmbuilder/version.py')
-setup(name='msmbuilder',
+setup(
+    name='msmbuilder',
       author='Robert McGibbon',
       author_email='rmcgibbo@gmail.com',
-      description=DOCLINES[0],
-      long_description="\n".join(DOCLINES[2:]),
-      version=__version__,
+    description="MSMBuilder: Statistical models for biomolecular dynamics",
+    version=VERSION,
       url='https://github.com/msmbuilder/msmbuilder',
       platforms=['Linux', 'Mac OS-X', 'Unix'],
       classifiers=CLASSIFIERS.splitlines(),
-      packages=['msmbuilder'] + ['msmbuilder.%s' % e for e in
-                              find_packages('msmbuilder')],
+    packages=find_packages('msmbuilder'),
       package_data={'msmbuilder.tests': ['workflows/*']},
       entry_points={'console_scripts':
               ['msmb = msmbuilder.scripts.msmb:main']},
       zip_safe=False,
       ext_modules=extensions,
-      cmdclass={'build_ext': build_ext})
+    cmdclass={'build_ext': build_ext}
+)
