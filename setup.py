@@ -190,7 +190,7 @@ setup(
     url='https://github.com/msmbuilder/msmbuilder',
     platforms=['Linux', 'Mac OS-X', 'Unix'],
     classifiers=CLASSIFIERS.splitlines(),
-    packages=find_packages('msmbuilder'),
+    packages=find_packages(),
     package_data={'msmbuilder.tests': ['workflows/*']},
     entry_points={
         'console_scripts':
