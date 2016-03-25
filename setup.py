@@ -82,6 +82,7 @@ MSMDIR = 'msmbuilder/msm/'
 HMMDIR = 'msmbuilder/hmm/'
 CLUSTERDIR = 'msmbuilder/cluster/'
 
+# Configure compiler with debug and openmp settings
 compiler = CompilerDetection(DISABLE_OPENMP)
 with open('msmbuilder/src/config.pxi', 'w') as f:
     f.write('\n'.join([
@@ -191,8 +192,10 @@ setup(
     classifiers=CLASSIFIERS.splitlines(),
     packages=find_packages('msmbuilder'),
     package_data={'msmbuilder.tests': ['workflows/*']},
-    entry_points={'console_scripts':
-                      ['msmb = msmbuilder.scripts.msmb:main']},
+    entry_points={
+        'console_scripts':
+            ['msmb = msmbuilder.scripts.msmb:main']
+    },
     zip_safe=False,
     ext_modules=extensions,
     cmdclass={'build_ext': build_ext}
