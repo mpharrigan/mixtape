@@ -66,6 +66,7 @@ class CompilerDetection(object):
 
         if disable_openmp:
             self.openmp_enabled = False
+            openmp_needs_gomp = False
         else:
             self.openmp_enabled, openmp_needs_gomp = self._detect_openmp()
         self.sse3_enabled = self._detect_sse3() if not self.msvc else True
