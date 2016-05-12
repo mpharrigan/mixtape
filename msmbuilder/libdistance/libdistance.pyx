@@ -2,7 +2,8 @@
 
 # Author: Robert McGibbon <rmcgibbo@gmail.com>
 # Contributors: Brooke Husic <brookehusic@gmail.com>
-# Copyright (c) 2015, Stanford University
+#               Matthew Harrigan <matthew.harrigan@outlook.com>
+# Copyright (c) 2016, Stanford University
 # All rights reserved.
 
 from __future__ import print_function
