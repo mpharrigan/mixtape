@@ -135,18 +135,9 @@ class SymmetryRMSDFeaturizer(Featurizer):
 
         self.reference_traj = reference_traj
         self.symmetry = symmetry
-        self.atom_groups = atom_groups
+        self.atom_groups = np.asarray(atom_groups, dtype=np.intp)
+        self.permutation_indices = np.asarray(
+            list(self.symmetry(range(len(self.atom_groups)))), dtype=np.intp)
 
     def partial_transform(self, traj):
-        ref_inds = np.concatenate(self.atom_groups)
-        feats = []
-        for ref_frame in range(self.reference_traj.n_frames):
-            rmsds = []
-            for perm in self.symmetry(range(len(self.atom_groups))):
-                x_inds = np.concatenate([self.atom_groups[i] for i in perm])
-                rmsds += [md.rmsd(traj, self.reference_traj, frame=ref_frame,
-                                  atom_indices=x_inds,
-                                  ref_atom_indices=ref_inds)]
-            rmsds = np.asarray(rmsds)
-            feats += [np.min(rmsds, axis=0)]
-        return np.vstack(feats).T
+        return libdistance.cdist_symrmsd(traj, self.reference_traj, self.atom_groups, self.permutation_indices)

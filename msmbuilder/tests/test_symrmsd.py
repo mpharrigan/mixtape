@@ -3,6 +3,7 @@ import mdtraj as md
 import numpy as np
 from random import shuffle
 import itertools
+from msmbuilder.featurizer import SymmetryRMSDFeaturizer
 
 
 def get_shuffle_traj():
@@ -77,3 +78,30 @@ def test_cdist():
     assert dists.ndim == 2
     assert dists.shape == (len(traj1), len(traj2))
     assert np.all(dists < 5)
+
+def reference_implementation(traj, reference_traj, atom_groups):
+    ref_inds = np.concatenate(atom_groups)
+    feats = []
+    for ref_frame in range(reference_traj.n_frames):
+        rmsds = []
+        for perm in itertools.permutations(range(len(atom_groups))):
+            x_inds = np.concatenate([atom_groups[i] for i in perm])
+            rmsds += [md.rmsd(traj, reference_traj, frame=ref_frame,
+                              atom_indices=x_inds,
+                              ref_atom_indices=ref_inds)]
+        rmsds = np.asarray(rmsds)
+        feats += [np.min(rmsds, axis=0)]
+    return np.vstack(feats).T
+
+def test_featurizer():
+    traj, ref = get_shuffle_traj()
+    ref = ref[:3]
+    groups = list(zip(range(0, 7, 2), range(1, 8, 2)))
+
+    ref_feats = reference_implementation(traj, ref, groups)
+
+    srmsd = SymmetryRMSDFeaturizer(ref, atom_groups=groups)
+    feats = srmsd.transform([traj])
+    feat = feats[0]
+    assert np.all(feat < 5)
+    np.testing.assert_array_almost_equal(ref_feats, feat)
