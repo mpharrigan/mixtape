@@ -15,7 +15,7 @@ from libc.float cimport FLT_MAX
 from libc.string cimport strcmp
 from numpy cimport npy_intp
 
-__all__ = ['assign_nearest', 'pdist', 'dist']
+__all__ = ['assign_nearest', 'pdist', 'dist', 'cdist_symrmsd', 'dist_symrmsd']
 
 cdef VECTOR_METRICS = ("euclidean", "sqeuclidean", "cityblock", "chebyshev",
                        "canberra", "braycurtis", "hamming", "jaccard",
@@ -443,7 +443,9 @@ cdef _cdist_rmsd(XA, XB):
 
     return np.array(out, copy=False)
 
-cdef _cdist_symrmsd(traj_i, traj_j, npy_intp[:, ::1] group_inds, npy_intp[:, ::1] permute_inds):
+# Note: this function is public since it doesn't fit in the general
+# cdist(..., metric) framework [i.e. it requires extra parameters]
+def cdist_symrmsd(traj_i, traj_j, npy_intp[:, ::1] group_inds, npy_intp[:, ::1] permute_inds):
     assert ((traj_i.xyz.ndim == 3) and (traj_j.xyz.ndim == 3)
             and (traj_i.xyz.shape[2]) == 3 and (traj_j.xyz.shape[2] == 3))
     assert group_inds.shape[0] == permute_inds.shape[1]
@@ -599,7 +601,9 @@ cdef _dist_rmsd(X, y, npy_intp[::1] X_indices=None):
                           &Y_xyz[0, 0, 0], X_trace[X_indices[i]], y_trace[0], 0, NULL))
     return np.array(out, copy=False)
 
-cdef _dist_symrmsd(traj, ref, npy_intp[:, ::1] group_inds, npy_intp[:, ::1] permute_inds):
+# Note: this function is public since it doesn't fit in the general
+# dist(..., metric) framework [i.e. it requires extra parameters]
+def dist_symrmsd(traj, ref, npy_intp[:, ::1] group_inds, npy_intp[:, ::1] permute_inds):
     """Perform rmsd with permutations
 
     Parameters
