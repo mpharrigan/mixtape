@@ -443,6 +443,42 @@ cdef _cdist_rmsd(XA, XB):
 
     return np.array(out, copy=False)
 
+cdef _cdist_symrmsd(traj_i, traj_j, npy_intp[:, ::1] group_inds, npy_intp[:, ::1] permute_inds):
+    assert ((traj_i.xyz.ndim == 3) and (traj_j.xyz.ndim == 3)
+            and (traj_i.xyz.shape[2]) == 3 and (traj_j.xyz.shape[2] == 3))
+    assert group_inds.shape[0] == permute_inds.shape[1]
+
+    cdef int ni_frames = traj_i.xyz.shape[0]
+    cdef int nj_frames = traj_j.xyz.shape[0]
+    cdef int n_permute = permute_inds.shape[0]
+    cdef int tot_n_atoms = group_inds.shape[0] * group_inds.shape[1]
+
+    # We only do traj_j once
+    cdef float[:] trajj_g = np.empty(nj_frames, dtype=np.float32) # TODO: does this need to be set to zero?
+    cdef float[:, :, ::1] trajj_xyz = np.asarray(traj_j.xyz[:, np.concatenate(group_inds), :], order='C', dtype=np.float32)
+    inplace_center_and_trace_atom_major(&trajj_xyz[0,0,0], &trajj_g[0], nj_frames, tot_n_atoms)
+
+    cdef float[:, :, ::1] distances = np.zeros((n_permute, ni_frames, nj_frames), dtype=np.float32)
+    cdef npy_intp perm_i, frame_i, frame_j
+    cdef float[:, :, ::1] traji_xyz
+    cdef float[:] traji_g = np.empty(ni_frames, dtype=np.float32) # TODO: does this need to be set to zero?
+    cdef int i
+    for perm_i in range(n_permute):
+
+        # Do permutation
+        atom_indices = np.concatenate([group_inds[i] for i in permute_inds[perm_i]])
+        traji_xyz = np.asarray(traj_i.xyz[:, atom_indices, :], order='C', dtype=np.float32)
+        inplace_center_and_trace_atom_major(&traji_xyz[0,0,0], &traji_g[0], ni_frames, tot_n_atoms)
+
+        # Calculate distances for each frame. We'll do the "min" later
+        for frame_i in range(ni_frames):
+            for frame_j in range(nj_frames):
+                distances[perm_i, frame_i, frame_j] = sqrt(msd_atom_major(
+                    tot_n_atoms, tot_n_atoms, &traji_xyz[frame_i, 0, 0], &trajj_xyz[frame_j, 0, 0],
+                    traji_g[frame_i], trajj_g[frame_j], 0, NULL
+                ))
+
+    return np.min(np.array(distances, copy=False), axis=0)
 
 cdef _cdist_double(double[:, ::1] XA, double[:, ::1] XB, const char* metric):
     cdef double[:, ::1] out
@@ -563,7 +599,7 @@ cdef _dist_rmsd(X, y, npy_intp[::1] X_indices=None):
                           &Y_xyz[0, 0, 0], X_trace[X_indices[i]], y_trace[0], 0, NULL))
     return np.array(out, copy=False)
 
-cdef _dist_symrmsd(traj, ref, int frame, npy_intp[:, ::1] group_inds, npy_intp[:, ::1] permute_inds):
+cdef _dist_symrmsd(traj, ref, npy_intp[:, ::1] group_inds, npy_intp[:, ::1] permute_inds):
     """Perform rmsd with permutations
 
     Parameters
@@ -581,10 +617,10 @@ cdef _dist_symrmsd(traj, ref, int frame, npy_intp[:, ::1] group_inds, npy_intp[:
     cdef int n_permute = permute_inds.shape[0]
     cdef int tot_n_atoms = group_inds.shape[0] * group_inds.shape[1]
 
-    # Extract the `frame`-th conformation from ref_xyz using all the atom indices
+    # Extract the 0-th conformation from ref_xyz using all the atom indices
     cdef float[:, ::1] ref_xyz
     ref_inds = np.concatenate(group_inds)
-    ref_xyz = np.asarray(ref.xyz[frame, ref_inds, :], order='C', dtype=np.float32)
+    ref_xyz = np.asarray(ref.xyz[0, ref_inds, :], order='C', dtype=np.float32)
 
     cdef float ref_g
     inplace_center_and_trace_atom_major(&ref_xyz[0, 0], &ref_g, 1, tot_n_atoms)
