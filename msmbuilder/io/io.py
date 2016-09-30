@@ -136,7 +136,7 @@ def preload_top(meta):
     return md.load(top_fns.pop())
 
 
-def itertrajs(meta, stride=1):
+def itertrajs(meta, stride=1, atom_indices=None):
     """Load one mdtraj trajectory at a time and yield it.
 
     MDTraj does striding badly. It reads in the whole trajectory and
@@ -147,7 +147,8 @@ def itertrajs(meta, stride=1):
     for i, row in meta.iterrows():
         yield i, md.join(md.iterload(row['traj_fn'],
                                      top=tops[row['top_fn']],
-                                     stride=stride),
+                                     stride=stride,
+                                     atom_indices=atom_indices),
                          discard_overlapping_frames=False,
                          check_topology=False)
 
