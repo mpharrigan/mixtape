@@ -1,15 +1,6 @@
 language: c
 sudo: false
 
-addons:
-  apt:
-    packages:
-      - pandoc
-
-branches:
-  only:
-    - master
-
 install:
     - source devtools/travis-ci/install_miniconda.sh
     - conda config --add channels omnia
