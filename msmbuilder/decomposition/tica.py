@@ -100,9 +100,9 @@ class tICA(BaseEstimator, TransformerMixin):
        (1994): 3634.
     .. [5] Chen, Yilun, Ami Wiesel, and Alfred O. Hero III. ICASSP (2009)
     .. [6] Noe, F. and Clementi, C. arXiv arXiv:1506.06259 [physics.comp-ph]
-           (2015)
+       (2015)
     .. [7] Noe, F., Banisch, R., Clementi, C. J. Chem. Theory. Comput(2016).
-            doi:10.1021/acs.jctc.6b00762
+       doi:10.1021/acs.jctc.6b00762
     """
 
     def __init__(self, n_components=None, lag_time=1, shrinkage=None,
