@@ -420,8 +420,8 @@ class tICA(BaseEstimator, TransformerMixin):
         Parameters
         ----------
         sequences : list of array, each of shape (n_samples_i, n_features)
-            Test data. A list of sequences in afeature space, each of which is a 2D
-            array of possibily different lengths, but the same number of features.
+            Test data. A list of sequences in a feature space, each of which is a 2D
+            array of possibly different lengths, but the same number of features.
 
         Returns
         -------

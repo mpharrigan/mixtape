@@ -60,7 +60,7 @@ class SparseTICA(tICA):
         (the Rao-Blackwellized Ledoit-Wolf estimator) introduced in [5].
     kinetic_mapping : bool, default=False
         If True, weigh the projections by the tICA eigenvalues, yielding
-         kinetic distances as described in [4].
+        kinetic distances as described in [4].
     epsilon : positive float, default=1e-6
         epsilon should be a number very close to zero, which is used to
         construct the approximation to the L_0 penality function. However,
