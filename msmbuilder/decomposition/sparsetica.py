@@ -98,7 +98,7 @@ class SparseTICA(tICA):
         Total number of sequences fit by the model. Note that the model
         is "reset" by calling `fit()` with new sequences, whereas
         `partial_fit()` updates the fit with new data, and is suitable for
-         online learning.
+        online learning.
     timescales_ : array-like, shape (n_components,)
         The implied timescales of the tICA model, given by
         -offset / log(eigenvalues)
