@@ -24,7 +24,7 @@ __all__ = ['tICA']
 
 
 class tICA(BaseEstimator, TransformerMixin):
-    """Time-structure Independent Component Analysis (tICA)
+    r"""Time-structure Independent Component Analysis (tICA)
 
     Linear dimensionality reduction using an eigendecomposition of the
     time-lag correlation matrix and covariance matrix of the data and keeping
