@@ -44,7 +44,7 @@ class tICA(BaseEstimator, TransformerMixin):
         (the Rao-Blackwellized Ledoit-Wolf estimator) introduced in [5].
     kinetic_mapping : bool, default=False
         If True, weigh the projections by the tICA eigenvalues, yielding
-         kinetic distances as described in [6].
+        kinetic distances as described in [6].
     commute_mapping : bool, default=False
         If True, scale/weigh the projections by the sqrt(ti/2), yielding
         commute distance as described in [7].
@@ -76,7 +76,7 @@ class tICA(BaseEstimator, TransformerMixin):
         Total number of sequences fit by the model. Note that the model
         is "reset" by calling `fit()` with new sequences, whereas
         `partial_fit()` updates the fit with new data, and is suitable for
-         online learning.
+        online learning.
     timescales_ : array-like, shape (n_features,)
         The implied timescales of the tICA model, given by
         -offset / log(eigenvalues)
@@ -87,7 +87,6 @@ class tICA(BaseEstimator, TransformerMixin):
     analysis of molecular dynamics data in [1]_, [2]_, and [3]_. In [1]_ and [2]_,
     tICA was used as a dimensionality reduction technique before fitting
     other kinetic models.
-
 
     References
     ----------
