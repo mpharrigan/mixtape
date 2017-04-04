@@ -1,0 +1,9 @@
+{#
+Meta
+----
+is_gitignore: true
+"""
+-#}
+
+/ftrajs-box.pdf
+/featurizer.pickl

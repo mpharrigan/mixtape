@@ -85,6 +85,7 @@ def get_layout():
                     TemplateDir(
                         'dihedrals',
                         [
+                            ('dihedrals/gitignore', '.gitignore'),
                             'dihedrals/featurize.py',
                             'dihedrals/featurize-plot.py',
                         ],
