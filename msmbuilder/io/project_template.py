@@ -285,7 +285,13 @@ class TemplateDir(object):
         self.subdirs = subdirs
 
     def render_files(self, template_kwargs):
-        depends = set()
+        # Assume we don't depend on anything
+        # and update as we go through files.
+        depends = {
+            'topology': False,
+            'trajectories': False,
+            'meta': False,
+        }
         for fn in self.files:
             if isinstance(fn, tuple):
                 from_fn, to_fn = fn
@@ -293,17 +299,25 @@ class TemplateDir(object):
                 from_fn = fn
                 to_fn = os.path.basename(fn)
             templ = Template(from_fn, to_fn)
-            if 'depends' in templ.meta:
-                depends.update(templ.meta['depends'])
+
+            for d in depends:
+                k = 'depends_{}'.format(d)
+                if k in templ.meta and templ.meta[k]:
+                    depends[d] = True
             templ.render(**template_kwargs)
         return depends
 
     def render(self, template_dir_kwargs, template_kwargs):
         depends = self.render_files(template_kwargs)
-        for dep in depends:
-            bn = os.path.basename(dep)
-            if not os.path.exists(bn):
-                os.symlink("../{}".format(dep), bn)
+        def symlink(fn):
+            if not os.path.exists(fn):
+                os.symlink('../{}'.format(fn), fn)
+        if depends['topology']:
+            symlink('top.pdb')
+        if depends['trajectories']:
+            symlink('trajs')
+        if depends['meta']:
+            symlink('meta.pandas.pickl')
         for subdir in self.subdirs:
             backup(subdir.name)
             os.mkdir(subdir.name)

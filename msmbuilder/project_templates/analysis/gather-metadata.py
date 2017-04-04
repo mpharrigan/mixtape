@@ -4,9 +4,8 @@
 
 Meta
 ----
-depends:
-  - trajs
-  - top.pdb
+depends_trajectories: True
+depends_topology: True
 """
 
 from msmbuilder.io import gather_metadata, save_meta, NumberedRunsParser
