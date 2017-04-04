@@ -15,10 +15,37 @@ Tutorial
 
     msmb -h
 
+   This tutorial assumes you are using Python 3 on Linux. MSMBuilder works
+   on many more platforms than this (python 2, mac, windows, ...) but you
+   won't be able to follow the tutorial verbatim.
+
 #.
    In your own research, you probably have a large molecular dynamics
    dataset that you wish to analyze. For this tutorial, we will perform a
-   quick analysis on a simple system: the Fs peptide.
+   quick analysis on a simple system: the Fs peptide. Download the sample
+   trajectories from `figshare <https://figshare.com/articles/Fs_MD_Trajectories/1030363>`_::
+
+    mkdir fs-trajectories
+    cd fs-trajectories/
+    wget https://ndownloader.figshare.com/articles/1030363/versions/1
+    # Figshare doesn't give you a good filename, but rest assured, this is a zip
+    unzip 1
+    rm 1
+
+   Now you have some trajectory files to work with as well as the OpenMM
+   scripts that were used to generate them::
+
+    $ ls -C
+    100-fs-peptide-400K.pdb  trajectory-5.xtc   trajectory-13.xtc  trajectory-21.xtc
+    fs-peptide.pdb           trajectory-6.xtc   trajectory-14.xtc  trajectory-22.xtc
+    post-process.py          trajectory-7.xtc   trajectory-15.xtc  trajectory-23.xtc
+    simulate_fs.py           trajectory-8.xtc   trajectory-16.xtc  trajectory-24.xtc
+    trajectory-1.xtc         trajectory-9.xtc   trajectory-17.xtc  trajectory-25.xtc
+    trajectory-2.xtc         trajectory-10.xtc  trajectory-18.xtc  trajectory-26.xtc
+    trajectory-3.xtc         trajectory-11.xtc  trajectory-19.xtc  trajectory-27.xtc
+    trajectory-4.xtc         trajectory-12.xtc  trajectory-20.xtc  trajectory-28.xtc
+
+
 
 #. We'll use MSMBuilder to create a set of sample python scripts to sketch
    out our project::
@@ -32,29 +59,29 @@ Tutorial
     .
     ├── analysis
     │   ├── dihedrals
-    │   │   ├── tica
-    │   │   │   ├── cluster
-    │   │   │   │   ├── msm
-    │   │   │   │   │   ├── timescales.py
-    │   │   │   │   │   ├── timescales-plot.py
-    │   │   │   │   │   ├── microstate.py
-    │   │   │   │   │   ├── microstate-plot.py
-    │   │   │   │   │   ├── microstate-traj.py
-    │   │   │   │   ├── cluster.py
-    │   │   │   │   ├── cluster-plot.py
-    │   │   │   │   ├── sample-clusters.py
-    │   │   │   │   ├── sample-clusters-plot.py
-    │   │   │   ├── ftrajs -> ../ftrajs
-    │   │   │   ├── tica.py
-    │   │   │   ├── tica-plot.py
-    │   │   │   ├── tica-sample-coordinate.py
-    │   │   │   ├── tica-sample-coordinate-plot.py
-    │   │   ├── featurize.py
     │   │   ├── featurize-plot.py
-    │   ├── gather-metadata.py
+    │   │   ├── featurize.py
+    │   │   └── tica
+    │   │       ├── cluster
+    │   │       │   ├── cluster-plot.py
+    │   │       │   ├── cluster.py
+    │   │       │   ├── msm
+    │   │       │   │   ├── microstate-plot.py
+    │   │       │   │   ├── microstate.py
+    │   │       │   │   ├── microstate-traj.py
+    │   │       │   │   ├── timescales-plot.py
+    │   │       │   │   └── timescales.py
+    │   │       │   ├── sample-clusters-plot.py
+    │   │       │   └── sample-clusters.py
+    │   │       ├── tica-plot.py
+    │   │       ├── tica.py
+    │   │       ├── tica-sample-coordinate-plot.py
+    │   │       └── tica-sample-coordinate.py
     │   ├── gather-metadata-plot.py
-    ├── 0-test-install.py
-    ├── 1-get-example-data.py
+    │   ├── gather-metadata.py
+    │   ├── top.pdb -> ../top.pdb
+    │   └── trajs -> ../trajs
+    ├── msmb-test-install.py
     └── README.md
 
 

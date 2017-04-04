@@ -52,8 +52,7 @@ def get_layout():
     layout = TemplateDir(
         '',
         [
-            '0-test-install.py',
-            '1-get-example-data.py',
+            'msmb-test-install.py',
             'README.md',
             ('gitignore', '.gitignore'),
         ],
