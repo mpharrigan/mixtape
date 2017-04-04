@@ -3,9 +3,10 @@
 {{header}}
 Meta
 ----
-depends:
-  - ftrajs
-  - meta.pandas.pickl
+depends_trajectories: True
+depends_topology: True
+depends_meta: True
+previous_data: ftrajs
 """
 
 from msmbuilder.io import load_trajs, save_trajs, save_generic

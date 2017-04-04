@@ -310,6 +310,10 @@ class TemplateDir(object):
                 k = 'depends_{}'.format(d)
                 if k in templ.meta and templ.meta[k]:
                     depends[d] = True
+
+            if 'previous_data' in templ.meta:
+                depends['previous_data'] = templ.meta['previous_data']
+
             templ.render(**template_kwargs)
         return depends
 
@@ -324,6 +328,8 @@ class TemplateDir(object):
             symlink('trajs')
         if depends['meta']:
             symlink('meta.pandas.pickl')
+        if 'previous_data' in depends:
+            symlink(depends['previous_data'])
         for subdir in self.subdirs:
             backup(subdir.name)
             os.mkdir(subdir.name)

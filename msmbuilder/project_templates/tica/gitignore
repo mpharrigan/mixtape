@@ -7,3 +7,5 @@ is_gitignore: true
 
 /tica-heatmap.pdf
 /tica-timescales.pdf
+/ftrajs
+/tica.pickl
