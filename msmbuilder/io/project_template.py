@@ -266,7 +266,7 @@ class Template(object):
     def render(self, ipynb, use_agg, use_xdgopen, write_gitignore):
         rendered = self.template.render(
             header=self.get_header(),
-            date=datetime.now().isoformat(),
+            date=date.today().isoformat(),
             ipynb=ipynb,
             use_agg=use_agg,
             use_xdgopen=use_xdgopen,
