@@ -1,6 +1,6 @@
 # Author: Matthew Harrigan <matthew.harrigan@outlook.com>
 # Contributors:
-# Copyright (c) 2016, Stanford University
+# Copyright (c) 2017, Stanford University
 # All rights reserved.
 
 
@@ -55,6 +55,7 @@ def get_layout():
             '0-test-install.py',
             '1-get-example-data.py',
             'README.md',
+            ('gitignore', '.gitignore'),
         ],
         [
             TemplateDir(
@@ -111,9 +112,11 @@ class TemplateProject(object):
         Render scripts as IPython/Jupyter notebooks instead.
     display : bool
         Render scripts assuming a connected display and xdg-open.
+    gitignore : bool
+        Render template .gitignore files to version control scripts.
     """
 
-    def __init__(self, root='', step=None, ipynb=False, display=False):
+    def __init__(self, root='', step=None, ipynb=False, display=False, gitignore=True):
         if step is not None:
             find_root = step
             limit = 1
@@ -128,20 +131,39 @@ class TemplateProject(object):
             'ipynb': ipynb,
             'use_agg': (not display) and (not ipynb),
             'use_xdgopen': display and (not ipynb),
+            'write_gitignore': gitignore,
         }
         self.template_dir_kwargs = {}
 
     def do(self):
         """Render the templates"""
         self.layout.render(self.template_dir_kwargs, self.template_kwargs)
+        if self.template_kwargs['write_gitignore']:
+            print("I wrote .gitignore files. You might want to run\n"
+                  "`git init` to version control your files "
+                  "or set --no-gitignore")
 
 
 class MetadataPackageLoader(PackageLoader):
+    """Parse yaml 'front matter' in our templates
+    
+        '''Docstring description la dee da
+        
+        Meta
+        ----
+        my_key: my_val
+        '''
+        
+        import msmbuilder
+        msmbuilder.do_templated_stuff()
+        
+    But make sure you use triple-double quotes (which
+    I can't put in this docstring).
+    """
     meta = {}
 
     def get_source(self, environment, template):
-        source, filename, uptodate = super(MetadataPackageLoader, self) \
-            .get_source(environment, template)
+        source, filename, uptodate = super(MetadataPackageLoader, self).get_source(environment, template)
 
         beg_str = "Meta\n----\n"
         end_str = "\n\"\"\"\n"
@@ -172,12 +194,17 @@ class Template(object):
         Template filename.
     """
 
-    def __init__(self, template_fn):
+    def __init__(self, template_fn, to_fn):
         self.template_fn = template_fn
+        self.to_fn = to_fn
         self.template = ENV.get_template(template_fn)
         self.meta = ENV.loader.meta[self.template.filename]
 
-    def get_write_function(self, ipynb):
+    def get_write_function(self, ipynb, write_gitignore):
+        is_gitignore = 'is_gitignore' in self.meta and (not str(self.meta['is_gitignore']).lower() == "false")
+        if is_gitignore and (not write_gitignore):
+            return lambda x, y: None
+
         fext = self.template_fn.split('.')[-1]
         if fext == 'py':
             if ipynb:
@@ -196,10 +223,10 @@ class Template(object):
             "please cite msmbuilder in any publications"
         ])
 
-    def write_ipython(self, templ_fn, rendered):
+    def write_ipython(self, out_fn, rendered):
         import nbformat
         from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook
-        templ_ipynb_fn = templ_fn.replace('.py', '.ipynb')
+        templ_ipynb_fn = out_fn.replace('.py', '.ipynb')
 
         cell_texts = [templ_ipynb_fn] + re.split(r'## (.*)\n', rendered)
         cells = []
@@ -216,23 +243,23 @@ class Template(object):
         with open(templ_ipynb_fn, 'w') as f:
             nbformat.write(nb, f)
 
-    def write_python(self, templ_fn, rendered):
-        backup(templ_fn)
-        with open(templ_fn, 'w') as f:
+    def write_python(self, out_fn, rendered):
+        backup(out_fn)
+        with open(out_fn, 'w') as f:
             f.write(rendered)
 
-    def write_shell(self, templ_fn, rendered):
-        backup(templ_fn)
-        with open(templ_fn, 'w') as f:
+    def write_shell(self, out_fn, rendered):
+        backup(out_fn)
+        with open(out_fn, 'w') as f:
             f.write(rendered)
-        chmod_plus_x(templ_fn)
+        chmod_plus_x(out_fn)
 
-    def write_generic(self, templ_fn, rendered):
-        backup(templ_fn)
-        with open(templ_fn, 'w') as f:
+    def write_generic(self, out_fn, rendered):
+        backup(out_fn)
+        with open(out_fn, 'w') as f:
             f.write(rendered)
 
-    def render(self, ipynb, use_agg, use_xdgopen):
+    def render(self, ipynb, use_agg, use_xdgopen, write_gitignore):
         rendered = self.template.render(
             header=self.get_header(),
             date=datetime.now().isoformat(),
@@ -240,8 +267,8 @@ class Template(object):
             use_agg=use_agg,
             use_xdgopen=use_xdgopen,
         )
-        write_func = self.get_write_function(ipynb)
-        write_func(os.path.basename(self.template_fn), rendered)
+        write_func = self.get_write_function(ipynb, write_gitignore)
+        write_func(self.to_fn, rendered)
 
 
 class TemplateDir(object):
@@ -260,7 +287,12 @@ class TemplateDir(object):
     def render_files(self, template_kwargs):
         depends = set()
         for fn in self.files:
-            templ = Template(fn)
+            if isinstance(fn, tuple):
+                from_fn, to_fn = fn
+            else:
+                from_fn = fn
+                to_fn = os.path.basename(fn)
+            templ = Template(from_fn, to_fn)
             if 'depends' in templ.meta:
                 depends.update(templ.meta['depends'])
             templ.render(**template_kwargs)

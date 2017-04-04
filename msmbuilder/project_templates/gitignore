@@ -1,0 +1,18 @@
+{#
+Meta
+----
+is_gitignore: true
+"""
+-#}
+
+# MSMBuilder will back up existing files by appending
+# .bak.1, .bak.2 to the filename
+*.bak.*
+
+# Don't version control data
+*.pdb
+*.prmtop
+*.xtc
+*.dcd
+*.nc
+*.npy
