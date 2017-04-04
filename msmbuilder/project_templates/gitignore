@@ -16,3 +16,4 @@ is_gitignore: true
 *.dcd
 *.nc
 *.npy
+trajs
