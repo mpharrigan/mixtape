@@ -19,6 +19,7 @@ def get_layout():
     tica_msm = TemplateDir(
         'tica',
         [
+            ('tica/gitignore', '.gitignore'),
             'tica/tica.py',
             'tica/tica-plot.py',
             'tica/tica-sample-coordinate.py',

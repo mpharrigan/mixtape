@@ -1,0 +1,9 @@
+{#
+Meta
+----
+is_gitignore: true
+"""
+-#}
+
+/tica-heatmap.pdf
+/tica-timescales.pdf
