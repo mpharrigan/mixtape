@@ -17,3 +17,7 @@ is_gitignore: true
 *.nc
 *.npy
 trajs
+
+# You could probably version control this if you want,
+# although it is a binary file
+meta.pandas.pickl

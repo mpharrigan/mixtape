@@ -19,8 +19,7 @@ Tutorial
    on many more platforms than this (python 2, mac, windows, ...) but you
    won't be able to follow the tutorial verbatim.
 
-#.
-   In your own research, you probably have a large molecular dynamics
+#. In your own research, you probably have a large molecular dynamics
    dataset that you wish to analyze. For this tutorial, we will perform a
    quick analysis on a simple system: the Fs peptide. Download the sample
    trajectories from `figshare <https://figshare.com/articles/Fs_MD_Trajectories/1030363>`_::
@@ -45,6 +44,10 @@ Tutorial
     trajectory-3.xtc         trajectory-11.xtc  trajectory-19.xtc  trajectory-27.xtc
     trajectory-4.xtc         trajectory-12.xtc  trajectory-20.xtc  trajectory-28.xtc
 
+   At this point, you should have a directory named ``fs-trajectories`` with 28 ``xtc``
+   trajectories in it and a ``pdb`` topology file named ``fs-peptide.pdb``.
+   Feel free to load one of these trajectories in VMD to get a sense of
+   what they look like.
 
 
 #. We'll use MSMBuilder to create a set of sample python scripts to sketch
@@ -87,19 +90,39 @@ Tutorial
 
    Each subsequent step in the MSM construction pipeline is a subdirectory.
 
-#. Retrieve the Fs peptide example data by running::
+   If you're comfortable with version control, the ``TemplateProject`` command
+   also writes sample ``.gitignore`` files so you can put your scripts under
+   version control (Optional!)::
 
-    python 1-get-example-data.py
+    git init
+    git add .
+    git commit -m "Initial commit"
 
-   Ensure that you now have a directory named ``fs_peptide`` with 28 ``xtc``
-   trajectories in it and a ``pdb`` topology file named ``fs-peptide.pdb``.
-   Feel free to load one of these trajectories in VMD to get a sense of
-   what they look like. Ensure that the symlinks ``top.pdb`` and ``trajs``
-   resolve to the correct place. We use symlinks to map *your* filenames
-   to into "standard" msmbuilder names. For example,
-   if your set of trajectories was stored on another partition, you could
-   use a symlink to point to the folder, name it ``trajs``, and the scripts
-   will work without modification.
+#. When using the ``TemplateProject`` command and/or when following this
+   tutorial, we're a little picky about filenames (if you're a power user
+   or are using msmbuilder as a library, you can use whatever filenames you
+   want). In particular, we require a topology named ``top.pdb`` and trajectories
+   in a folder named ``trajs``. Right now, your topology is named ``fs-trajectories/fs-peptide.pdb``
+   and your trajectories are in a folder named ``fs-trajectories``. Let's use symlinks to
+   help us out::
+
+    ln -s fs-trajectories/fs-peptide.pdb top.pdb
+    ln -s fs-trajectories/ trajs
+
+   If your topology is a different format (e.g. Amber ``prmtop``), name it
+   ``top.prmtop`` and use ``msmb TemplateProject --topology_fext=prmtop``
+   on the command line.::
+
+    $ ls
+    total 16K
+    drwxr-xr-x 5   4.0K Apr  4 15:48 analysis
+    drwxr-xr-x 2   4.0K Apr  4 15:46 fs-trajectories
+    -rw-r--r-- 1   1.1K Apr  4 15:48 README.md
+    -rw-r--r-- 1   2.6K Apr  4 15:48 msmb-test-install.py
+    lrwxrwxrwx 1     30 Apr  4 16:00 top.pdb -> fs-trajectories/fs-peptide.pdb
+    lrwxrwxrwx 1     16 Apr  4 16:00 trajs -> fs-trajectories/
+
+
 
 #. Begin our analysis::
 
@@ -120,6 +143,14 @@ Tutorial
        Sometimes you'll have many different length-ed trajectories and
        this histogram will be interesting. All of our trajectories are 500 ns
        though.
+
+   **Important:** For your own projects, you *will* have to modify this short
+   script (``gather-metadata.py``). Make sure you set ``step_ps`` to the length
+   of each frame (in picoseconds). From the fs-peptide description on figshare,
+   we can read that frames were saved every 50ps. Note that the example
+   script uses ``NumberedRunsParser`` because our trajectories are all numbered
+   with integers. You can use the ``msmbuilder.io.GenericParser`` for more
+   control (it uses regular expressions).
 
    The plot script contains several example functions of computing statistics
    on your dataset including aggregate length. It will also generate an ``html``
