@@ -4,10 +4,9 @@
 
 Meta
 ----
-depends:
-  - meta.pandas.pickl
-  - trajs
-  - top.pdb
+depends_meta: True
+depends_trajectories: True
+depends_topology: True
 """
 import mdtraj as md
 

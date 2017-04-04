@@ -62,6 +62,7 @@ def get_layout():
                 [
                     'analysis/gather-metadata.py',
                     'analysis/gather-metadata-plot.py',
+                    ('analysis/gitignore', '.gitignore'),
                 ],
                 [
                     TemplateDir(
