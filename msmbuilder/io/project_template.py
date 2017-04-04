@@ -114,9 +114,11 @@ class TemplateProject(object):
         Render scripts assuming a connected display and xdg-open.
     gitignore : bool
         Render template .gitignore files to version control scripts.
+    topology_fext : str
+        File extension for the topology.
     """
 
-    def __init__(self, root='', step=None, ipynb=False, display=False, gitignore=True):
+    def __init__(self, root='', step=None, ipynb=False, display=False, gitignore=True, topology_fext="pdb"):
         if step is not None:
             find_root = step
             limit = 1
@@ -133,7 +135,9 @@ class TemplateProject(object):
             'use_xdgopen': display and (not ipynb),
             'write_gitignore': gitignore,
         }
-        self.template_dir_kwargs = {}
+        self.template_dir_kwargs = {
+            'topology_fext': topology_fext,
+        }
 
     def do(self):
         """Render the templates"""
@@ -313,7 +317,7 @@ class TemplateDir(object):
             if not os.path.exists(fn):
                 os.symlink('../{}'.format(fn), fn)
         if depends['topology']:
-            symlink('top.pdb')
+            symlink('top.{topology_fext}'.format(**template_dir_kwargs))
         if depends['trajectories']:
             symlink('trajs')
         if depends['meta']:
