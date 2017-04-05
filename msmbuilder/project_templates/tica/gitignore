@@ -9,3 +9,5 @@ is_gitignore: true
 /tica-timescales.pdf
 /ftrajs
 /tica.pickl
+/tica-dimension-*-heatmap.pdf
+/tica-dimension-*-inds.pickl
